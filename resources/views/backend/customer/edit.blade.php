@@ -84,7 +84,7 @@
                                 <div class="col-lg-8">
                                   <input class="form-control" type="tel" id="phone" value="{{old('phone_number', $response->customer->phone_number)}}" aria-describedby="helpPhone" name='' pattern=".{6,16}" title="Phone number must be between 6 to 16 characters" required>
                                   <input type="hidden" name="phone_number" id="phone_number" class="form-control">
-                                  <small id="helpPhone" class="form-text text-muted">Enter your number without the starting 0, eg 813012345</small>
+                                  <small id="helpPhone" class="form-text text-muted">Enter phone number without the starting 0, eg 813012345</small>
                                 </div>
                               </div>
                             </div>
