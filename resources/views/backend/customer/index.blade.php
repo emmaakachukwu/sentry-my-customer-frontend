@@ -5,39 +5,7 @@
 <link rel="stylesheet" href="backend/assets/css/all_users.css">
 <link rel="stylesheet" href="/backend/assets/css/complaintsLog.css">
 <link rel="stylesheet" href="//cdn.datatables.net/1.10.21/css/jquery.dataTables.min.css">
-
-<style>
-    div.dataTables_filter input {
-        border-radius: 5px;
-        border: 1px solid #CCC;
-    }
-
-    
-    .dataTables_wrapper .dataTables_paginate .paginate_button {
-        color: #000 !important;
-        border: 1px solid #CCC !important;
-        background-color: #FFF !important;
-        background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #FFF), color-stop(100%, #FFF))!important;
-        background: -webkit-linear-gradient(top, #FFF 0%, #FFF 100%)!important;
-        background: -moz-linear-gradient(top, #FFF 0%, #FFF 100%)!important;
-        background: -ms-linear-gradient(top, #FFF 0%, #FFF 100%)!important;
-        background: -o-linear-gradient(top, #FFF 0%, #FFF 100%)!important;
-        background: linear-gradient(to bottom, #FFF 0%, #FFF 100%)!important;
-    }
-
-    .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
-        color: #FFF !important;
-        border: none !important;
-        background-color: #536BF8 !important;
-        background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #FFF), color-stop(100%, #536BF8))!important;
-        background: -webkit-linear-gradient(top, #536BF8 0%, #536BF8 100%)!important;
-        background: -moz-linear-gradient(top, #536BF8 0%, #536BF8 100%)!important;
-        background: -ms-linear-gradient(top, #536BF8 0%, #536BF8 100%)!important;
-        background: -o-linear-gradient(top, #536BF8 0%, #536BF8 100%)!important;
-        background: linear-gradient(to bottom, #536BF8 0%, #536BF8 100%)!important;
-    }
-
-</style>
+<link rel="stylesheet" href="/backend/assets/css/datatablestyle.css">
 @stop
 @section('content')
 <div class="content">
@@ -167,10 +135,10 @@
                                             <td scope="row">{{$i + 1}}</td>
                                             <td><img src="/backend/assets/images/users/avatar-5.jpg"
                                                     class="avatar-sm rounded-circle" alt="Shreyu" /></td>
-                                            <td>{{isset($response[$i]->name) ? ucfirst($response[$i]->name) : 'Not available'}}<br>
+                                            <td>{{ ucfirst($response[$i]->name) }}<br>
                                                 <span class="badge badge-danger">Has Credit</span>
                                             </td>
-                                            <td>{{isset($response[$i]->phone_number) ? $response[$i]->phone_number : 'Not available'}}<br>
+                                            <td>{{ $response[$i]->phone_number }}<br>
                                             </td>
                                             <td>
                                                 <span> &#8358; 1 500</span> <br>
@@ -501,9 +469,9 @@
                                         @for ($i = 0; $i < count($response); $i++)
                                             <tr>
                                                 <td>{{$i + 1}}</td>
-                                                <td>{{isset($response[$i]->name) ? ucfirst($response[$i]->name) : 'Not available'}}</td>
-                                                <td>{{isset($response[$i]->phone_number) ? $response[$i]->phone_number : 'Not available'}}</td>
-                                                <td>{{isset($response[$i]->store_name) ? $response[$i]->store_name : 'Not available'}}</td>
+                                                <td>{{ ucfirst($response[$i]->name) }}</td>
+                                                <td>{{ $response[$i]->phone_number }}</td>
+                                                <td>{{ $response[$i]->store_name }}</td>
                                                 {{-- <td>
                                                     <span> &#8358; 1 500</span> <br>
                                                     <span class="badge badge-primary">You Paid: 1000</span>
@@ -575,13 +543,14 @@
             </div>
 
             <div class="modal-body">
-                <form class="form-horizontal" method="POST" action="{{ route('customer.store') }}">
+                <form class="form-horizontal" method="POST" action="{{ route('customer.store') }}" id="submitForm">
                     @csrf
                     <div class="form-group row mb-3">
                         <label for="inputphone" class="col-3 col-form-label">Phone Number</label>
                         <div class="col-9">
-                            <input type="tel" class="form-control" id="inputphone" placeholder="Phone Number"
-                                name="phone_number" required pattern=".{8,15}" title="Phone number must be between 8 to 15 characters">
+                            <input type="tel" class="form-control" id="phone" placeholder="Phone Number" aria-describedby="helpPhone" name="" required pattern=".{6,16}" title="Phone number must be between 6 to 16 characters">
+                            <input type="hidden" name="phone_number" id="phone_number" class="form-control">
+                            <small id="helpPhone" class="form-text text-muted">Enter phone number without the starting 0, eg 813012345</small>
                         </div>
                     </div>
                     <div class="form-group row mb-3">
@@ -597,7 +566,7 @@
                             <!-- <input type="text" class="form-control" id="inputPassword3" placeholder="Store name"
                                 name="store_name"> -->
                             <select name="store_id" class="form-control" required>
-                                @if ( isset($stores) )
+                                @if ( isset($stores) && count($stores) )
                                     <option disabled selected value="">-- Select store --</option>
                                     @foreach ($stores as $store)
                                         <option value="{{$store->_id}}">{{$store->store_name}}</option>
@@ -642,7 +611,7 @@
                     <div class="form-group row mb-3">
                         <label for="inputphone" class="col-3 col-form-label">Phone Number</label>
                         <div class="col-9">
-                            <input type="tel" class="form-control" id="inputphone" placeholder="Phone Number">
+                            <input type="tel" class="form-control" id="phone" placeholder="Phone Number">
                         </div>
                     </div>
                     <div class="form-group row mb-3">
@@ -686,7 +655,7 @@
                     <div class="form-group row mb-3">
                         <label for="inputphone" class="col-3 col-form-label">Phone Number</label>
                         <div class="col-9">
-                            <input type="text" class="form-control" id="inputphone" placeholder="Phone Number">
+                            <input type="text" class="form-control" id="phone" placeholder="Phone Number">
                         </div>
                     </div>
                     <div class="form-group row mb-3">
@@ -719,20 +688,35 @@
 
 
 @section("javascript")
-<script src="/backend/assets/build/js/intlTelInput.js"></script>
+
 <script src="//cdn.datatables.net/1.10.21/js/jquery.dataTables.min.js"></script>
+<script src="/backend/assets/build/js/intlTelInput.js"></script>
 <script>
-    var input = document.querySelector("#phone");
-    window.intlTelInput(input, {
-        // any initialisation options go here
+    $(document).ready(function() {
+        $('#basic-datatable').DataTable( {
+            "pagingType": "full_numbers"
+        } );
     });
 
-</script>
-<script>
-$(document).ready(function() {
-    $('#basic-datatable').DataTable( {
-        "pagingType": "full_numbers"
-    } );
-} );
+   var input = document.querySelector("#phone");
+   var test = window.intlTelInput(input, {
+        // any initialisation options go here
+    })
+
+//    $("#phone").keyup(() => {
+//         if ($("#phone").val().charAt(0) == 0) {
+//             $("#phone").val($("#phone").val().substring(1));
+//         }
+//     });
+
+    $("#submitForm").submit((e) => {
+        e.preventDefault();
+        const dialCode = test.getSelectedCountryData().dialCode;
+        if ($("#phone").val().charAt(0) == 0) {
+            $("#phone").val($("#phone").val().substring(1));
+        }
+        $("#phone_number").val(dialCode + $("#phone").val());
+        $("#submitForm").off('submit').submit();
+    });
 </script>
 @stop

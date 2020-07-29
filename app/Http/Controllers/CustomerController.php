@@ -9,6 +9,10 @@ use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Session;
 
+// FOR COUNTRY CODE AND PHONE NUMBER IMPLEMENTATION
+use App\Rules\DoNotPutCountryCode;
+use App\Rules\NoZero;
+
 class CustomerController extends Controller
 {
 
@@ -31,12 +35,12 @@ class CustomerController extends Controller
         try {
             $id = Cookie::get('user_id');
             $url = $this->host.'/customer' ;
-            $url2 = $this->host.'/store' ;
+            $store_url = $this->host.'/store' ;
             $client = new Client();
 
             $headers = ['headers' => ['x-access-token' => Cookie::get('api_token')]];
             $user_response = $client->request('GET', $url, $headers);
-            $store_response = $client->request('GET', $url2, $headers);
+            $store_response = $client->request('GET', $store_url, $headers);
 
             $statusCode = $user_response->getStatusCode();
             $statusCode2 = $store_response->getStatusCode();
@@ -126,7 +130,7 @@ class CustomerController extends Controller
         if ($request->isMethod('post')) {
             $request->validate([
                 'store_id' => 'required',
-                'phone_number' =>  'required | min:8 | max:15',
+                'phone_number' =>  ['required', 'min:6', 'max:16',  new NoZero, new DoNotPutCountryCode],
                 'name' => 'required | min:5 | max:30',
             ]);
 
@@ -139,9 +143,7 @@ class CustomerController extends Controller
                         'phone_number' => $request->input('phone_number'),
                         'name' => $request->input('name'),
                     ],
-
                 ];
-
                 $response = $client->request("POST", $url, $payload);
 
                 $statusCode = $response->getStatusCode();
@@ -253,12 +255,12 @@ class CustomerController extends Controller
 
         try {
             $url = $this->host."/customer/".$store_id."/".$customer_id;
-            $url2 = $this->host.'/store';
+            $store_url = $this->host.'/store';
             $client = new Client;
             $headers = ['headers' => ['x-access-token' => Cookie::get('api_token')]];
 
             $response = $client->request("GET", $url, $headers);
-            $store_response = $client->request('GET', $url2, $headers);
+            $store_response = $client->request('GET', $store_url, $headers);
 
             $data = json_decode($response->getBody());
             $stores = json_decode($store_response->getBody());
@@ -303,7 +305,7 @@ class CustomerController extends Controller
     public function update(Request $request, $id)
     {
         $request->validate([
-            'phone_number' =>  'required | min:8 | max:15',
+            'phone_number' =>  ['required', 'min:6', 'max:16',  new NoZero, new DoNotPutCountryCode],
             'name' => 'required | min:5 | max:30',
         ]);
 
@@ -323,8 +325,6 @@ class CustomerController extends Controller
                     'store_id' => $store_id,
                 ],
             ];
-
-            // return dd($payload['form_params']);z
 
             $response = $client->request("PUT", $url, $payload);
 
@@ -389,10 +389,5 @@ class CustomerController extends Controller
 
             return redirect()->back();
         }
-    }
-
-    public function ace($store_id, $id)
-    {
-        return dd('here');
     }
 }

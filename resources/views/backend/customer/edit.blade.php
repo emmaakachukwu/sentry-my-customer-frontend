@@ -4,6 +4,7 @@
 {{-- add in the basic styling : check the contents of these stylesheets later --}}
 @section("custom_css")
   <link rel="stylesheet" href="{{asset('backend/assets/css/singleCustomer.css')}}">
+  <link href="/backend/assets/build/css/intlTelInput.css" rel="stylesheet" type="text/css" />
 @stop
 
 
@@ -61,13 +62,13 @@
                 
                 <div class="card">
                     <div class="card-body">
-                        <form class="form-horizontal" role="form" method="post" action="{{ route('customer.update', $response->storeId.'-'.$response->customer->_id) }}" enctype="multipart/form-data">
+                        <form id="submitForm" class="form-horizontal" role="form" method="post" action="{{ route('customer.update', $response->storeId.'-'.$response->customer->_id) }}" enctype="multipart/form-data">
                           @csrf
                           @method('PUT')
                           <div class="form-group">
                             <label class="col-lg-3 control-label">Full Name:</label>
                             <div class="col-lg-8">
-                              <input style="width:100%" class="form-control" type="text" value="{{old('name', $response->customer->name)}}" name="name" required pattern=".{5,30}" title="Customer name must be at least 5 characters and not more than 30 characters">
+                              <input class="form-control" type="text" value="{{old('name', $response->customer->name)}}" name="name" required pattern=".{5,30}" title="Customer name must be at least 5 characters and not more than 30 characters">
                             </div>
                           </div>
 
@@ -78,10 +79,13 @@
                             </div>
                           </div> --}}
 
-                          <div class="form-group">
-                              <label class="col-lg-3 control-label">Tel:</label>
-                              <div class="col-lg-8">
-                                <input class="form-control" type="phone" value="{{old('phone_number', $response->customer->phone_number)}}" name='phone_number' required pattern=".{8,15}" title="Phone number must be between 8 to 15 characters">
+                            <div class="form-group">
+                                <label class="col-lg-3 control-label">Tel:</label>
+                                <div class="col-lg-8">
+                                  <input class="form-control" type="tel" id="phone" value="{{old('phone_number', $response->customer->phone_number)}}" aria-describedby="helpPhone" name='' pattern=".{6,16}" title="Phone number must be between 6 to 16 characters" required>
+                                  <input type="hidden" name="phone_number" id="phone_number" class="form-control">
+                                  <small id="helpPhone" class="form-text text-muted">Enter phone number without the starting 0, eg 813012345</small>
+                                </div>
                               </div>
                             </div>
                             {{-- <div class="form-group">
@@ -122,8 +126,8 @@
                           </div> --}}
 
                           <div class="form-group">
-                              <label class="col-md-3 control-label">Store Name</label>
-                              <div class="col-md-8">
+                              <label class="col-lg-3 control-label">Store Name:</label>
+                              <div class="col-lg-8">
                                 <select name="store_name" class="form-control" disabled required>
                                   @if ( isset($stores) )
                                     @foreach ($stores as $store)
@@ -169,3 +173,43 @@
 </div>
 
 @endsection
+
+@section("javascript")
+  <script src="/backend/assets/build/js/intlTelInput.js"></script>
+   <script>
+    var input = document.querySelector("#phone");
+   window.intlTelInput(input, {
+       // any initialisation options go here
+   });
+
+
+   //phone Number format
+
+   var input = document.querySelector("#phone");
+    var test = window.intlTelInput(input, {
+        // any initialisation options go here
+    });
+
+    $("#phone").keyup(() => {
+      if ($("#phone").val().charAt(0) == 0) {
+        $("#phone").val($("#phone").val().substring(1));
+      }
+    });
+
+    $("#submitForm").submit((e) => {
+      e.preventDefault();
+      const dialCode = test.getSelectedCountryData().dialCode;
+      if ($("#phone").val().charAt(0) == 0) {
+        $("#phone").val($("#phone").val().substring(1));
+      }
+      
+      if ( dialCode != undefined ) {
+        $("#phone_number").val(dialCode + $("#phone").val());
+        $("#submitForm").off('submit').submit();
+      } else {
+        $("#phone_number").val($("#phone").val());
+        $("#submitForm").off('submit').submit();
+      }        
+    });
+   </script>
+@stop
